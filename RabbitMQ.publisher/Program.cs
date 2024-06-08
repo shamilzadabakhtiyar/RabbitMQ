@@ -7,23 +7,33 @@ factory.Uri = new Uri("amqps://wzrfvrnm:Ty8g7emkfwJ0BqZdd2HoZ92oSbJ23FeH@beaver.
 using var connection = factory.CreateConnection();
 var channel = connection.CreateModel();
 //channel.QueueDeclare("hello-queue", true, false, false);
-channel.ExchangeDeclare("logs-direct", ExchangeType.Direct, true);
+channel.ExchangeDeclare("logs-topic", ExchangeType.Topic, true);
 
-Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
-{
-    var routeKey = $"route-{x}";
-    var queueName = $"direct-queue-{x}";
-    channel.QueueDeclare(queueName, true, false, false);
-    channel.QueueBind(queueName, "logs-direct", routeKey);
-});
+Random random = new();
+
+//Enum.GetNames(typeof(LogNames)).ToList().ForEach(x =>
+//{
+//    LogNames log1 = (LogNames)new Random().Next(0, 4);
+//    LogNames log2 = (LogNames)new Random().Next(0, 4);
+//    LogNames log3 = (LogNames)new Random().Next(0, 4);
+
+//    var routeKey = $"{log1}{log2}{log3}";
+//    var queueName = $"direct-queue-{x}";
+//    channel.QueueDeclare(queueName, true, false, false);
+//    channel.QueueBind(queueName, "logs-direct", routeKey);
+//});
 
 Enumerable.Range(1, 50).ToList().ForEach(x =>
 {
-    LogNames log = (LogNames)new Random().Next(0, 4);
-    string message = $"log-type: {log}";
+    LogNames log1 = (LogNames)new Random().Next(0, 4);
+    LogNames log2 = (LogNames)new Random().Next(0, 4);
+    LogNames log3 = (LogNames)new Random().Next(0, 4);
+
+    string message = $"log-type: {log1}-{log2}-{log3}";
     var messageBody = Encoding.UTF8.GetBytes(message);
-    var routeKey = $"route-{log}";
-    channel.BasicPublish("logs-direct", routeKey, null, messageBody);
+
+    var routeKey = $"{log1}.{log2}.{log3}";
+    channel.BasicPublish("logs-topic", routeKey, null, messageBody);
     Console.WriteLine($"Log sent: {message}");
 });
 
