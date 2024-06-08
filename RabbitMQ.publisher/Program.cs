@@ -13,6 +13,7 @@ headers.Add("format", "pdf");
 headers.Add("shape", "a4");
 var properties = channel.CreateBasicProperties();
 properties.Headers = headers;
+properties.Persistent = true;
 channel.BasicPublish("exchange-header", string.Empty, properties, Encoding.UTF8.GetBytes("header message"));
 Console.WriteLine($"Log sent");
 //Random random = new();
