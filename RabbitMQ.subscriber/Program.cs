@@ -1,6 +1,8 @@
 ﻿using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Shared;
 using System.Text;
+using System.Text.Json;
 
 var factory = new ConnectionFactory();
 factory.Uri = new Uri("amqps://wzrfvrnm:Ty8g7emkfwJ0BqZdd2HoZ92oSbJ23FeH@beaver.rmq.cloudamqp.com/wzrfvrnm");
@@ -27,7 +29,8 @@ Console.WriteLine("Logs are listened");
 consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
 {
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
-    Console.WriteLine("Incoming message: " + message);
+    var product = JsonSerializer.Deserialize<Product>(message);
+    Console.WriteLine("Incoming message: " + product);
     channel.BasicAck(e.DeliveryTag, false);
     //File.AppendAllText("log-critical.txt", message + "\n");
     Thread.Sleep(1000);

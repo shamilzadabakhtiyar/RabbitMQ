@@ -1,5 +1,7 @@
 ﻿using RabbitMQ.Client;
+using Shared;
 using System.Text;
+using System.Text.Json;
 
 var factory = new ConnectionFactory();
 factory.Uri = new Uri("amqps://wzrfvrnm:Ty8g7emkfwJ0BqZdd2HoZ92oSbJ23FeH@beaver.rmq.cloudamqp.com/wzrfvrnm");
@@ -14,7 +16,15 @@ headers.Add("shape", "a4");
 var properties = channel.CreateBasicProperties();
 properties.Headers = headers;
 properties.Persistent = true;
-channel.BasicPublish("exchange-header", string.Empty, properties, Encoding.UTF8.GetBytes("header message"));
+var product = new Product()
+{
+    Id = 1,
+    Name = "Pen",
+    Price = 10,
+    Stock = 3
+};
+var productJson = JsonSerializer.Serialize(product);
+channel.BasicPublish("exchange-header", string.Empty, properties, Encoding.UTF8.GetBytes(productJson));
 Console.WriteLine($"Log sent");
 //Random random = new();
 
