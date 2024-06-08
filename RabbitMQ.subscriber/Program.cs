@@ -14,8 +14,12 @@ var channel = connection.CreateModel();
 //channel.QueueDeclare(randomQueue, true, false, false);
 //channel.QueueBind(randomQueue, "logs-fanout", string.Empty);
 var queueName = channel.QueueDeclare().QueueName;
-var routeKey = "Info.#";
-channel.QueueBind(queueName, "logs-topic", routeKey);
+Dictionary<string, object> headers = new();
+headers.Add("format", "pdf");
+headers.Add("shape", "a5");
+headers.Add("x-match", "any");
+//var routeKey = "Info.#";
+channel.QueueBind(queueName, "exchange-header", string.Empty, headers);
 channel.BasicQos(0, 1, false);
 var consumer = new EventingBasicConsumer(channel);
 channel.BasicConsume(queueName, false, consumer);
@@ -25,7 +29,7 @@ consumer.Received += (object? sender, BasicDeliverEventArgs e) =>
     var message = Encoding.UTF8.GetString(e.Body.ToArray());
     Console.WriteLine("Incoming message: " + message);
     channel.BasicAck(e.DeliveryTag, false);
-    File.AppendAllText("log-critical.txt", message + "\n");
+    //File.AppendAllText("log-critical.txt", message + "\n");
     Thread.Sleep(1000);
 };
 
